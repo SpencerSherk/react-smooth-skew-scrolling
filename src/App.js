@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./App.scss";
 
 import useWindowSize from "./hooks/useWindowSize";
 
 import images from "./images/images";
+import textContent from "./textContent/textContent";
 
 function App() {
   //Hook to grab window size
@@ -31,6 +32,16 @@ function App() {
     setBodyHeight();
   }, [size.height]);
 
+  const [ready, setReady] = useState(true);
+
+  const clickFn = () => { 
+    if (ready === true) { 
+      console.log(`Click mouseup detected`);
+      setReady(false);
+      setTimeout(function(){ setReady(true) }, 1000);
+    }
+  };
+
   //Set the height of the body to the height of the scrolling div
   const setBodyHeight = () => {
     document.body.style.height = `${
@@ -54,7 +65,9 @@ function App() {
     const skew = velocity * 7.5;
 
     //Assign skew and smooth scrolling to the scroll container
-    scrollContainer.current.style.transform = `translate3d(0, -${data.rounded}px, 0) skewY(${skew}deg)`;
+    scrollContainer.current.style.transform = `translate3d(0, -${data.rounded}px, 0) skewY(${skew}deg) scale(${1-(skew/50)})`;
+
+    document.body.addEventListener('mouseup', clickFn, true); 
 
     //loop vai raf
     requestAnimationFrame(() => skewScrolling());
@@ -63,16 +76,46 @@ function App() {
   return (
     <div ref={app} className="App">
       <div ref={scrollContainer} className="scroll">
-        {images.map((image, index) => (
-          <>
-            <div key={index} className="img-container">
-              <img src={image} alt={`people ${index}`} />
-            </div>
-            <h2>
-              Skew <span className="outline">Scrolling</span>
-            </h2>
-          </>
-        ))}
+      <div className="section-headline">
+        <h2>
+          Moments
+        </h2>
+      </div>
+        {images.map((image, index) => {
+
+          if (index % 2 === 0) {
+            return (
+              <>
+                <div className="section-container">
+                  <div key={index} className="img-container">
+                    <img src={image} alt={`people ${index}`} />
+                  </div>
+                  <div className="section-text-right">
+                    <p>
+                      {textContent[index]}
+                    </p>
+                  </div>
+                </div>
+              </>
+            );
+          } else {
+            return (
+              <>
+                <div className="section-container">
+                  <div className="section-text-left">
+                    <p>
+                      {textContent[index]}
+                    </p>
+                  </div>
+                  <div key={index} className="img-container">
+                    <img src={image} alt={`people ${index}`} />
+                  </div>
+                </div>
+              </>
+            );
+          }
+        })
+        }
       </div>
     </div>
   );
